@@ -6,13 +6,9 @@
 #  LICENSE file in the root directory of this source tree.
 #
 
-from indicnlp import loader
 from indicnlp import langinfo
 from indicnlp.script.indic_scripts import *
 import numpy as np
-import gzip
-import pandas as pd
-import sys
 
 
 def equal(v1, v2):

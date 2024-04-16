@@ -15,9 +15,9 @@ Tokenizer for Indian languages. Currently, simple punctuation-based tokenizers
 are supported (see `trivial_tokenize`). Major Indian language punctuations are
 handled. 
 """
-import string, re, sys
+import string
+import re
 
-from indicnlp.common import IndicNlpException
 
 ### tokenizer patterns
 triv_tokenizer_indic_pat = re.compile(

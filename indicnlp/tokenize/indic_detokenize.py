@@ -14,8 +14,7 @@
 De-tokenizer for Indian languages.
 """
 
-import string, re, sys
-from indicnlp.common import IndicNlpException
+import re
 
 ## detokenizer patterns
 left_attach = r"!%)\]},.:;>?\u0964\u0965"

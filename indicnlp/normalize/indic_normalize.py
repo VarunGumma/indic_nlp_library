@@ -13,7 +13,9 @@
 # @author Anoop Kunchukuttan
 #
 
-import sys, codecs, string, itertools, re
+import sys
+import codecs
+import re
 from indicnlp import langinfo
 
 

@@ -11,7 +11,8 @@
 # @author Anoop Kunchukuttan
 #
 
-import sys, string, itertools, re, os
+import sys
+import os
 from collections import defaultdict
 
 from indicnlp import common

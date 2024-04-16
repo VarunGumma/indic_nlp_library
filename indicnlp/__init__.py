@@ -1,5 +1,4 @@
 import os
-import sys
 
 try:
     from .version import __version__  # noqa

@@ -13,7 +13,6 @@
 #
 
 from indicnlp.transliterate.unicode_transliterate import UnicodeIndicTransliterator
-import string
 import random
 
 
