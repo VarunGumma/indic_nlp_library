@@ -233,9 +233,12 @@ def sentence_split(text, lang, delim_pat="auto"):  ## New signature
     """
 
     if lang == "ur":
-        from urduhack.tokenization import sentence_tokenizer
+        from indicnlp.urduhack.tokenization import sentence_tokenizer
 
-        sentences = sentence_tokenizer(text)
+        if len(text.split()) < 2:
+            sentences = text.split()
+        else:
+            sentences = sentence_tokenizer(text)
         return sentences
 
     # print('Input: {}'.format(delim_pat))
