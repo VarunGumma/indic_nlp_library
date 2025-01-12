@@ -16,7 +16,7 @@ are supported (see `trivial_tokenize`). Major Indian language punctuations are
 handled. 
 """
 import string
-import re
+import regex as re
 
 
 ### tokenizer patterns

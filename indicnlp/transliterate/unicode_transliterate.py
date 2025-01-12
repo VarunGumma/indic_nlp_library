@@ -18,9 +18,6 @@ from collections import defaultdict
 from indicnlp import common
 from indicnlp import langinfo
 from indicnlp.script import indic_scripts as isc
-from indicnlp.transliterate.sinhala_transliterator import (
-    SinhalaDevanagariTransliterator as sdt,
-)
 import pandas as pd
 
 OFFSET_TO_ITRANS = {}
@@ -133,17 +130,6 @@ class UnicodeIndicTransliterator(object):
             lang1_code in langinfo.SCRIPT_RANGES
             and lang2_code in langinfo.SCRIPT_RANGES
         ):
-            # if Sinhala is source, do a mapping to Devanagari first
-            if lang1_code == "si":
-                text = sdt.sinhala_to_devanagari(text)
-                lang1_code = "hi"
-
-            # if Sinhala is target, make Devanagiri the intermediate target
-            org_lang2_code = ""
-            if lang2_code == "si":
-                lang2_code = "hi"
-                org_lang2_code = "si"
-
             trans_lit_text = []
             for c in text:
                 newc = c
@@ -162,10 +148,6 @@ class UnicodeIndicTransliterator(object):
                     newc = chr(langinfo.SCRIPT_RANGES[lang2_code][0] + offset)
 
                 trans_lit_text.append(newc)
-
-            # if Sinhala is source, do a mapping to Devanagari first
-            if org_lang2_code == "si":
-                return sdt.devanagari_to_sinhala("".join(trans_lit_text))
 
             return "".join(trans_lit_text)
         else:

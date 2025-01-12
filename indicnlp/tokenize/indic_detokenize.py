@@ -14,7 +14,7 @@
 De-tokenizer for Indian languages.
 """
 
-import re
+import regex as re
 
 ## detokenizer patterns
 left_attach = r"!%)\]},.:;>?\u0964\u0965"

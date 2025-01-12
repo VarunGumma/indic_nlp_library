@@ -15,7 +15,7 @@
 
 import sys
 import codecs
-import re
+import regex as re
 from indicnlp import langinfo
 
 

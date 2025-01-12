@@ -16,7 +16,7 @@ sentence splitter that can understand common non-breaking phrases
 in many Indian languages.
 """
 
-import re
+import regex as re
 from indicnlp.transliterate import unicode_transliterate
 from indicnlp import langinfo
 
