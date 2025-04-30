@@ -1,0 +1,35 @@
+[project]
+name = "indic-nlp-library-it2"
+version = "0.1.0"
+description = "The goal of the Indic NLP Library is to build Python based libraries for common  text processing and Natural Language Processing in Indian languages. This fork is specialized for IndicTrans2."
+authors = [
+    {name = "varun230999@gmail.com"}
+]
+repository = "https://github.com/VarunGumma/indic_nlp_library"
+license = {text = "MIT"}
+readme = "README.md"
+requires-python = ">=3.8"
+dependencies = [
+    "numpy (>=2.2.5,<3.0.0)",
+    "pandas (>=2.2.3,<3.0.0)",
+    "morfessor (>=2.0.6,<3.0.0)",
+    "sphinx-rtd-theme (>=3.0.2,<4.0.0)",
+    "sphinx-argparse (>=0.5.2,<0.6.0)"
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+[tool.poetry]
+packages = [
+    { include = "indicnlp" }
+]
+include = [
+    { path = "indicnlp/RESOURCES", format = ["sdist", "wheel"] }
+]
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
