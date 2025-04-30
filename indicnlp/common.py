@@ -12,7 +12,7 @@ from pathlib import Path
 """
 Path to the Indic NLP Resources directory
 """
-INDIC_RESOURCES_PATH = os.path.join(Path(__file__).resolve().parent.parent, "RESOURCES")
+INDIC_RESOURCES_PATH = os.path.join(Path(__file__).resolve().parent, "RESOURCES")
 
 
 def init():
