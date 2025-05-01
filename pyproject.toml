@@ -1,5 +1,5 @@
 [project]
-name = "indic-nlp-library-it2"
+name = "indic-nlp-library-itt"
 version = "0.1.0"
 description = "The goal of the Indic NLP Library is to build Python based libraries for common  text processing and Natural Language Processing in Indian languages. This fork is specialized for IndicTrans2."
 authors = [
