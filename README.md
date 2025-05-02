@@ -9,10 +9,7 @@ For any queries, please get in touch with the original authors/maintainers of th
 
 ## Usage:
 ```
-git clone https://github.com/VarunGumma/indic_nlp_library.git
-
-cd indic_nlp_library
-pip install --editable ./
+$ pip install indic-nlp-library-itt
 ```
 
 ## Updates:
