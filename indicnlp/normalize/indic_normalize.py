@@ -33,16 +33,16 @@ class NormalizerI(object):
     They can call the super class 'normalize() method to avail of the common normalization
     """
 
-    BYTE_ORDER_MARK = "\uFEFF"
-    BYTE_ORDER_MARK_2 = "\uFFFE"
+    BYTE_ORDER_MARK = "\ufeff"
+    BYTE_ORDER_MARK_2 = "\ufffe"
     WORD_JOINER = "\u2060"
-    SOFT_HYPHEN = "\u00AD"
+    SOFT_HYPHEN = "\u00ad"
 
-    ZERO_WIDTH_SPACE = "\u200B"
-    NO_BREAK_SPACE = "\u00A0"
+    ZERO_WIDTH_SPACE = "\u200b"
+    NO_BREAK_SPACE = "\u00a0"
 
-    ZERO_WIDTH_NON_JOINER = "\u200C"
-    ZERO_WIDTH_JOINER = "\u200D"
+    ZERO_WIDTH_NON_JOINER = "\u200c"
+    ZERO_WIDTH_JOINER = "\u200d"
 
     def _normalize_punctuations(self, text):
         """
@@ -337,7 +337,7 @@ class DevanagariNormalizer(BaseNormalizer):
 
     """
 
-    NUKTA = "\u093C"
+    NUKTA = "\\u093C"
 
     def __init__(
         self,
@@ -354,6 +354,7 @@ class DevanagariNormalizer(BaseNormalizer):
             do_normalize_chandras,
             do_normalize_vowel_ending,
         )
+        self.visarga_pattern = re.compile(r"([\\u0900-\\u097f]):")
 
     def normalize(self, text):
         # common normalization for Indic scripts
@@ -368,12 +369,12 @@ class DevanagariNormalizer(BaseNormalizer):
         text = text.replace("\u0934", "\u0933" + DevanagariNormalizer.NUKTA)
         text = text.replace("\u0958", "\u0915" + DevanagariNormalizer.NUKTA)
         text = text.replace("\u0959", "\u0916" + DevanagariNormalizer.NUKTA)
-        text = text.replace("\u095A", "\u0917" + DevanagariNormalizer.NUKTA)
-        text = text.replace("\u095B", "\u091C" + DevanagariNormalizer.NUKTA)
-        text = text.replace("\u095C", "\u0921" + DevanagariNormalizer.NUKTA)
-        text = text.replace("\u095D", "\u0922" + DevanagariNormalizer.NUKTA)
-        text = text.replace("\u095E", "\u092B" + DevanagariNormalizer.NUKTA)
-        text = text.replace("\u095F", "\u092F" + DevanagariNormalizer.NUKTA)
+        text = text.replace("\u095a", "\u0917" + DevanagariNormalizer.NUKTA)
+        text = text.replace("\u095b", "\u091c" + DevanagariNormalizer.NUKTA)
+        text = text.replace("\u095c", "\u0921" + DevanagariNormalizer.NUKTA)
+        text = text.replace("\u095d", "\u0922" + DevanagariNormalizer.NUKTA)
+        text = text.replace("\u095e", "\u092b" + DevanagariNormalizer.NUKTA)
+        text = text.replace("\u095f", "\u092f" + DevanagariNormalizer.NUKTA)
 
         if self.remove_nuktas:
             text = text.replace(DevanagariNormalizer.NUKTA, "")
@@ -382,7 +383,7 @@ class DevanagariNormalizer(BaseNormalizer):
         text = text.replace("\u007c", "\u0964")
 
         # correct visarga
-        text = re.sub(r"([\u0900-\u097f]):", "\\1\u0903", text)
+        text = self.visarga_pattern.sub("\\\\1\\u0903", text)
 
         return text
 
@@ -394,12 +395,12 @@ class DevanagariNormalizer(BaseNormalizer):
         print((len(re.findall("\u0934", text))))
         print((len(re.findall("\u0958", text))))
         print((len(re.findall("\u0959", text))))
-        print((len(re.findall("\u095A", text))))
-        print((len(re.findall("\u095B", text))))
-        print((len(re.findall("\u095C", text))))
-        print((len(re.findall("\u095D", text))))
-        print((len(re.findall("\u095E", text))))
-        print((len(re.findall("\u095F", text))))
+        print((len(re.findall("\u095a", text))))
+        print((len(re.findall("\u095b", text))))
+        print((len(re.findall("\u095c", text))))
+        print((len(re.findall("\u095d", text))))
+        print((len(re.findall("\u095e", text))))
+        print((len(re.findall("\u095f", text))))
 
         # print(len(re.findall(u'\u0928'+DevanagariNormalizer.NUKTA,text)))
         # print(len(re.findall(u'\u0930'+DevanagariNormalizer.NUKTA,text)))
@@ -423,7 +424,7 @@ class GurmukhiNormalizer(BaseNormalizer):
     * replace colon ':' by visarga if the colon follows a charcter in this script
     """
 
-    NUKTA = "\u0A3C"
+    NUKTA = "\\u0A3C"
 
     VOWEL_NORM_MAPS = {
         ## http://www.unicode.org/versions/Unicode12.1.0/ch12.pdf
@@ -460,6 +461,9 @@ class GurmukhiNormalizer(BaseNormalizer):
         self.do_canonicalize_addak = do_canonicalize_addak
         self.do_canonicalize_tippi = do_canonicalize_tippi
         self.do_replace_vowel_bases = do_replace_vowel_bases
+        if self.do_canonicalize_addak:
+            self.addak_pattern = re.compile(r"\\u0a71(.)")
+        self.visarga_pattern = re.compile(r"([\\u0a00-\\u0a7f]):")
 
     def _normalize_vowels(self, text):
         """ """
@@ -488,7 +492,7 @@ class GurmukhiNormalizer(BaseNormalizer):
         # Addak
         if self.do_canonicalize_addak:
             ## replace addak+consonant with consonat+halant+consonant
-            text = re.sub(r"\u0a71(.)", "\\1\u0a4d\\1", text)
+            text = self.addak_pattern.sub("\\\\1\\u0a4d\\\\1", text)
 
         # Tippi
         if self.do_canonicalize_tippi:
@@ -521,7 +525,7 @@ class GurmukhiNormalizer(BaseNormalizer):
         text = text.replace("\u007c", "\u0964")
 
         # correct visarge
-        text = re.sub(r"([\u0a00-\u0a7f]):", "\\1\u0a03", text)
+        text = self.visarga_pattern.sub("\\\\1\\u0a03", text)
 
         return text
 
@@ -533,7 +537,7 @@ class GujaratiNormalizer(BaseNormalizer):
     * replace colon ':' by visarga if the colon follows a charcter in this script
     """
 
-    NUKTA = "\u0ABC"
+    NUKTA = "\\u0ABC"
 
     def __init__(
         self,
@@ -550,6 +554,7 @@ class GujaratiNormalizer(BaseNormalizer):
             do_normalize_chandras,
             do_normalize_vowel_ending,
         )
+        self.visarga_pattern = re.compile(r"([\\u0a80-\\u0aff]):")
 
     def normalize(self, text):
         # common normalization for Indic scripts
@@ -565,7 +570,7 @@ class GujaratiNormalizer(BaseNormalizer):
         text = text.replace("\u0ae5", "\u0965")
 
         # correct visarge
-        text = re.sub(r"([\u0a80-\u0aff]):", "\\1\u0a83", text)
+        text = self.visarga_pattern.sub("\\\\1\\u0a83", text)
 
         return text
 
@@ -581,7 +586,7 @@ class OriyaNormalizer(BaseNormalizer):
     * replace colon ':' by visarga if the colon follows a charcter in this script
     """
 
-    NUKTA = "\u0B3C"
+    NUKTA = "\\u0B3C"
 
     VOWEL_NORM_MAPS = {
         ## See Table 12-22 in http://www.unicode.org/versions/Unicode12.1.0/ch12.pdf
@@ -607,6 +612,7 @@ class OriyaNormalizer(BaseNormalizer):
             do_normalize_vowel_ending,
         )
         self.do_remap_wa = do_remap_wa
+        self.visarga_pattern = re.compile(r"([\\u0b00-\\u0b7f]):")
 
     def normalize(self, text):
         # common normalization for Indic scripts
@@ -651,7 +657,7 @@ class OriyaNormalizer(BaseNormalizer):
         # ignore
 
         # correct visarge
-        text = re.sub(r"([\u0b00-\u0b7f]):", "\\1\u0b03", text)
+        text = self.visarga_pattern.sub("\\\\1\\u0b03", text)
 
         return text
 
@@ -666,7 +672,7 @@ class BengaliNormalizer(BaseNormalizer):
     * replace colon ':' by visarga if the colon follows a charcter in this script
     """
 
-    NUKTA = "\u09BC"
+    NUKTA = "\\u09BC"
 
     def __init__(
         self,
@@ -685,6 +691,7 @@ class BengaliNormalizer(BaseNormalizer):
             do_normalize_vowel_ending,
         )
         self.do_remap_assamese_chars = do_remap_assamese_chars
+        self.visarga_pattern = re.compile(r"([\\u0980-\\u09ff]):")
 
     def normalize(self, text):
         # common normalization for Indic scripts
@@ -717,7 +724,7 @@ class BengaliNormalizer(BaseNormalizer):
         text = text.replace("\u09c7\u09d7", "\u09cc")
 
         # correct visarge
-        text = re.sub(r"([\u0980-\u09ff]):", "\\1\u0983", text)
+        text = self.visarga_pattern.sub("\\\\1\\u0983", text)
 
         return text
 
@@ -745,6 +752,7 @@ class TamilNormalizer(BaseNormalizer):
             do_normalize_chandras,
             do_normalize_vowel_ending,
         )
+        self.visarga_pattern = re.compile(r"([\\u0b80-\\u0bff]):")
 
     def normalize(self, text):
         # common normalization for Indic scripts
@@ -762,7 +770,7 @@ class TamilNormalizer(BaseNormalizer):
         text = text.replace("\u0bc6\u0bd7", "\u0bcc")
 
         # correct visarge
-        text = re.sub(r"([\u0b80-\u0bff]):", "\\1\u0b83", text)
+        text = self.visarga_pattern.sub("\\\\1\\u0b83", text)
 
         return text
 
@@ -790,6 +798,7 @@ class TeluguNormalizer(BaseNormalizer):
             do_normalize_chandras,
             do_normalize_vowel_ending,
         )
+        self.visarga_pattern = re.compile(r"([\\u0c00-\\u0c7f]):")
 
     def normalize(self, text):
         # common normalization for Indic scripts
@@ -804,7 +813,7 @@ class TeluguNormalizer(BaseNormalizer):
         text = text.replace("\u0c46\u0c56", "\u0c48")
 
         # correct visarge
-        text = re.sub(r"([\u0c00-\u0c7f]):", "\\1\u0c03", text)
+        text = self.visarga_pattern.sub("\\\\1\\u0c03", text)
 
         return text
 
@@ -835,6 +844,7 @@ class KannadaNormalizer(BaseNormalizer):
             do_normalize_chandras,
             do_normalize_vowel_ending,
         )
+        self.visarga_pattern = re.compile(r"([\\u0c80-\\u0cff]):")
 
     def normalize(self, text):
         # common normalization for Indic scripts
@@ -853,7 +863,7 @@ class KannadaNormalizer(BaseNormalizer):
         text = text.replace("\u0cca\u0cd5", "\u0ccb")
 
         # correct visarge
-        text = re.sub(r"([\u0c80-\u0cff]):", "\\1\u0c83", text)
+        text = self.visarga_pattern.sub("\\\\1\\u0c83", text)
 
         return text
 
@@ -903,6 +913,7 @@ class MalayalamNormalizer(BaseNormalizer):
         )
         self.do_canonicalize_chillus = do_canonicalize_chillus
         self.do_correct_geminated_T = do_correct_geminated_T
+        self.visarga_pattern = re.compile(r"([\\u0d00-\\u0d7f]):")
 
     def normalize(self, text):
         # Change from old encoding of chillus (till Unicode 5.0) to new encoding
@@ -938,7 +949,7 @@ class MalayalamNormalizer(BaseNormalizer):
             text = self._correct_geminated_T(text)
 
         # correct visarga
-        text = re.sub(r"([\u0d00-\u0d7f]):", "\\1\u0d03", text)
+        text = self.visarga_pattern.sub("\\\\1\\u0d03", text)
 
         return text
 
@@ -1051,38 +1062,3 @@ class IndicNormalizerFactory(object):
             return True
         else:
             return False
-
-
-if __name__ == "__main__":
-    if len(sys.argv) < 4:
-        print(
-            "Usage: python normalize.py <infile> <outfile> <language> [<replace_nukta(True,False)>] [<normalize_nasals(do_nothing|to_anusvaara_strict|to_anusvaara_relaxed|to_nasal_consonants)>]"
-        )
-        sys.exit(1)
-
-    language = sys.argv[3]
-    remove_nuktas = False
-    normalize_nasals = "do_nothing"
-    if len(sys.argv) >= 5:
-        remove_nuktas = bool(sys.argv[4])
-    if len(sys.argv) >= 6:
-        normalize_nasals = sys.argv[5]
-
-    # create normalizer
-    factory = IndicNormalizerFactory()
-    normalizer = factory.get_normalizer(
-        language, remove_nuktas=remove_nuktas, nasals_mode=normalize_nasals
-    )
-
-    # DO normalization
-    with codecs.open(sys.argv[1], "r", "utf-8") as ifile:
-        with codecs.open(sys.argv[2], "w", "utf-8") as ofile:
-            for line in ifile.readlines():
-                normalized_line = normalizer.normalize(line)
-                ofile.write(normalized_line)
-
-    ## gather status about normalization
-    # with codecs.open(sys.argv[1],'r','utf-8') as ifile:
-    #    normalizer=DevanagariNormalizer()
-    #    text=string.join(ifile.readlines(),sep='')
-    #    normalizer.get_char_stats(text)

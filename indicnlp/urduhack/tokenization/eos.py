@@ -2,44 +2,48 @@
 """Rule based Sentence tokenization module"""
 
 # Global Variables
-_URDU_CONJUNCTIONS = [
-    "جنہیں",
-    "جس",
-    "جن",
-    "جو",
-    "اور",
-    "اگر",
-    "اگرچہ",
-    "لیکن",
-    "مگر",
-    "پر",
-    "یا",
-    "تاہم",
-    "کہ",
-    "کر",
-    "تو",
-    "گے",
-    "گی",
-]
-_URDU_NEWLINE_WORDS = [
-    "کیجیے",
-    "کیجئے",
-    "گئیں",
-    "تھیں",
-    "ہوں",
-    "خریدا",
-    "گے",
-    "ہونگے",
-    "گا",
-    "چاہیے",
-    "ہوئیں",
-    "گی",
-    "تھا",
-    "تھی",
-    "تھے",
-    "ہیں",
-    "ہے",
-]
+_URDU_CONJUNCTIONS = frozenset(
+    [
+        "جنہیں",
+        "جس",
+        "جن",
+        "جو",
+        "اور",
+        "اگر",
+        "اگرچہ",
+        "لیکن",
+        "مگر",
+        "پر",
+        "یا",
+        "تاہم",
+        "کہ",
+        "کر",
+        "تو",
+        "گے",
+        "گی",
+    ]
+)
+_URDU_NEWLINE_WORDS = frozenset(
+    [
+        "کیجیے",
+        "کیجئے",
+        "گئیں",
+        "تھیں",
+        "ہوں",
+        "خریدا",
+        "گے",
+        "ہونگے",
+        "گا",
+        "چاہیے",
+        "ہوئیں",
+        "گی",
+        "تھا",
+        "تھی",
+        "تھے",
+        "ہیں",
+        "ہے",
+    ]
+)
 
 
 def _split_and_keep(_str, separator):
@@ -69,61 +73,71 @@ def _generate_sentences(text: str) -> list:
             if "؟" in sentence:
                 q_sentences = _split_and_keep(sentence, "؟")
                 for _sen in q_sentences:
-                    _sen = _sen.split()
-                    new_sent = ""
+                    _sen_parts = _sen.split()
+                    new_sent_list = []
                     is_cont = False
 
-                    for index, word in enumerate(_sen):
+                    for index, word in enumerate(_sen_parts):
                         if is_cont:
                             is_cont = False
                             continue
 
                         if (
                             word in _URDU_NEWLINE_WORDS
-                            and index + 1 < len(_sen)
-                            and _sen[index + 1] not in _URDU_CONJUNCTIONS
+                            and index + 1 < len(_sen_parts)
+                            and _sen_parts[index + 1] not in _URDU_CONJUNCTIONS
                         ):
-                            if index + 1 < len(_sen) and _sen[index + 1] in ["۔", "،"]:
-                                new_sent += " " + word + " " + _sen[index + 1] + "\n"
+                            if index + 1 < len(_sen_parts) and _sen_parts[
+                                index + 1
+                            ] in ["۔", "،"]:
+                                new_sent_list.append(
+                                    " " + word + " " + _sen_parts[index + 1] + "\\n"
+                                )
                                 is_cont = True
                             else:
-                                new_sent += " " + word + "\n"
+                                new_sent_list.append(" " + word + "\\n")
 
                         else:
-                            new_sent += " " + word
+                            new_sent_list.append(" " + word)
 
-                    for sen in new_sent.split("\n"):
-                        if sen and len(sen.split()) >= 2:
-                            all_sentences.append(sen.strip())
+                    new_sent_str = "".join(new_sent_list)
+                    for sen_part in new_sent_str.split("\\n"):
+                        if sen_part and len(sen_part.split()) >= 2:
+                            all_sentences.append(sen_part.strip())
 
             else:
-                sentence = sentence.split()
-                new_sent = ""
+                sentence_parts = sentence.split()
+                new_sent_list = []
                 is_cont = False
 
-                for index, word in enumerate(sentence):
+                for index, word in enumerate(sentence_parts):
                     if is_cont:
                         is_cont = False
                         continue
 
                     if (
                         word in _URDU_NEWLINE_WORDS
-                        and index + 1 < len(sentence)
-                        and sentence[index + 1] not in _URDU_CONJUNCTIONS
+                        and index + 1 < len(sentence_parts)
+                        and sentence_parts[index + 1] not in _URDU_CONJUNCTIONS
                     ):
-                        if index + 1 < len(sentence) and sentence[index + 1] in [
+                        if index + 1 < len(sentence_parts) and sentence_parts[
+                            index + 1
+                        ] in [
                             "۔",
                             "،",
                         ]:
-                            new_sent += " " + word + " " + sentence[index + 1] + "\n"
+                            new_sent_list.append(
+                                " " + word + " " + sentence_parts[index + 1] + "\\n"
+                            )
                             is_cont = True
                         else:
-                            new_sent += " " + word + "\n"
+                            new_sent_list.append(" " + word + "\\n")
                     else:
-                        new_sent += " " + word
+                        new_sent_list.append(" " + word)
 
-                for sen in new_sent.split("\n"):
-                    if sen and len(sen.split()) >= 2:
-                        all_sentences.append(sen.strip())
+                new_sent_str = "".join(new_sent_list)
+                for sen_part in new_sent_str.split("\\n"):
+                    if sen_part and len(sen_part.split()) >= 2:
+                        all_sentences.append(sen_part.strip())
 
     return all_sentences

@@ -13,6 +13,7 @@ import os
 from indicnlp import common
 from indicnlp.common import IndicNlpException
 from indicnlp import langinfo as li
+from indicnlp.script import phonetic_constants as pc
 
 ###
 # Phonetic Information about script characters
@@ -30,62 +31,11 @@ ALL_PHONETIC_VECTORS = None
 """ Phonetic vector for Tamil """
 TAMIL_PHONETIC_VECTORS = None
 
-""" Length of phonetic vector """
-PHONETIC_VECTOR_LENGTH = 38
+# Use phonetic vector length from constants, allow override during init
+PHONETIC_VECTOR_LENGTH = pc.DEFAULT_PHONETIC_VECTOR_LENGTH
 
-""" Start offset for the phonetic feature vector in the phonetic data vector """
-PHONETIC_VECTOR_START_OFFSET = 6
-
-## PHONETIC PROPERTIES in order in which they occur in the vector
-## This list must be in sync with the keys in the PV_PROP_RANGES dictionary
-PV_PROP = [
-    "basic_type",
-    "vowel_length",
-    "vowel_strength",
-    "vowel_status",
-    "consonant_type",
-    "articulation_place",
-    "aspiration",
-    "voicing",
-    "nasalization",
-    "vowel_horizontal",
-    "vowel_vertical",
-    "vowel_roundness",
-]
-
-###
-# Bit vector ranges for various properties
-###
-
-PV_PROP_RANGES = {
-    "basic_type": [0, 6],
-    "vowel_length": [6, 8],
-    "vowel_strength": [8, 11],
-    "vowel_status": [11, 13],
-    "consonant_type": [13, 18],
-    "articulation_place": [18, 23],
-    "aspiration": [23, 25],
-    "voicing": [25, 27],
-    "nasalization": [27, 29],
-    "vowel_horizontal": [29, 32],
-    "vowel_vertical": [32, 36],
-    "vowel_roundness": [36, 38],
-}
-
-
-####
-# Indexes into the Phonetic Vector
-####
-PVIDX_BT_VOWEL = 0
-PVIDX_BT_CONSONANT = 1
-PVIDX_BT_NUKTA = 2
-PVIDX_BT_HALANT = 3
-PVIDX_BT_ANUSVAAR = 4
-PVIDX_BT_MISC = 5
-PVIDX_BT_S = PVIDX_BT_VOWEL
-PVIDX_BT_E = PVIDX_BT_MISC + 1
-
-PVIDX_VSTAT_DEP = 12
+# PHONETIC PROPERTIES and RANGES are now in phonetic_constants.py
+# Indexes into the Phonetic Vector are now in phonetic_constants.py
 
 #####
 # Unicode information about characters
@@ -100,7 +50,7 @@ def init():
     To be called by library loader, do not call it in your program
     """
 
-    global ALL_PHONETIC_DATA, ALL_PHONETIC_VECTORS, TAMIL_PHONETIC_DATA, TAMIL_PHONETIC_VECTORS, PHONETIC_VECTOR_LENGTH, PHONETIC_VECTOR_START_OFFSET
+    global ALL_PHONETIC_DATA, ALL_PHONETIC_VECTORS, TAMIL_PHONETIC_DATA, TAMIL_PHONETIC_VECTORS, PHONETIC_VECTOR_LENGTH
 
     ALL_PHONETIC_DATA = pd.read_csv(
         os.path.join(
@@ -116,13 +66,19 @@ def init():
     )
 
     ALL_PHONETIC_VECTORS = ALL_PHONETIC_DATA.iloc[
-        :, PHONETIC_VECTOR_START_OFFSET:
+        :, pc.PHONETIC_VECTOR_START_OFFSET :
     ].values
     TAMIL_PHONETIC_VECTORS = TAMIL_PHONETIC_DATA.iloc[
-        :, PHONETIC_VECTOR_START_OFFSET:
+        :, pc.PHONETIC_VECTOR_START_OFFSET :
     ].values
 
-    PHONETIC_VECTOR_LENGTH = ALL_PHONETIC_VECTORS.shape[1]
+    # Update the phonetic vector length based on the loaded data (assuming all_script has the representative length)
+    if ALL_PHONETIC_VECTORS is not None and ALL_PHONETIC_VECTORS.shape[1] > 0:
+        PHONETIC_VECTOR_LENGTH = ALL_PHONETIC_VECTORS.shape[1]
+    elif TAMIL_PHONETIC_VECTORS is not None and TAMIL_PHONETIC_VECTORS.shape[1] > 0:
+        PHONETIC_VECTOR_LENGTH = TAMIL_PHONETIC_VECTORS.shape[1]
+    else:
+        PHONETIC_VECTOR_LENGTH = pc.DEFAULT_PHONETIC_VECTOR_LENGTH
 
 
 def is_supported_language(lang):
@@ -187,8 +143,7 @@ def get_phonetic_info(lang):
 
 
 def invalid_vector():
-    ##  TODO: check if np datatype is correct?
-    return np.array([0] * PHONETIC_VECTOR_LENGTH)
+    return pc.get_invalid_vector(PHONETIC_VECTOR_LENGTH)
 
 
 def get_phonetic_feature_vector(c, lang):
@@ -211,6 +166,9 @@ def get_phonetic_feature_vector_offset(offset, lang):
 
     phonetic_data, phonetic_vectors = get_phonetic_info(lang)
 
+    if offset >= len(phonetic_data.index):
+        return invalid_vector()
+
     if phonetic_data.iloc[offset]["Valid Vector Representation"] == 0:
         return invalid_vector()
 
@@ -223,31 +181,31 @@ def is_valid(v):
 
 
 def is_vowel(v):
-    return v[PVIDX_BT_VOWEL] == 1
+    return v[pc.PVIDX_BT_VOWEL] == 1
 
 
 def is_consonant(v):
-    return v[PVIDX_BT_CONSONANT] == 1
+    return v[pc.PVIDX_BT_CONSONANT] == 1
 
 
 def is_halant(v):
-    return v[PVIDX_BT_HALANT] == 1
+    return v[pc.PVIDX_BT_HALANT] == 1
 
 
 def is_nukta(v):
-    return v[PVIDX_BT_NUKTA] == 1
+    return v[pc.PVIDX_BT_NUKTA] == 1
 
 
 def is_anusvaar(v):
-    return v[PVIDX_BT_ANUSVAAR] == 1
+    return v[pc.PVIDX_BT_ANUSVAAR] == 1
 
 
 def is_misc(v):
-    return v[PVIDX_BT_MISC] == 1
+    return v[pc.PVIDX_BT_MISC] == 1
 
 
 def is_dependent_vowel(v):
-    return is_vowel(v) and v[PVIDX_VSTAT_DEP] == 1
+    return is_vowel(v) and v[pc.PVIDX_VSTAT_DEP] == 1
 
 
 def is_plosive(v):
@@ -269,7 +227,10 @@ def xor_vectors(v1, v2):
 
 
 def get_property_vector(v, prop_name):
-    return v[PV_PROP_RANGES[prop_name][0] : PV_PROP_RANGES[prop_name][1]]
+    # Ensure prop_name is valid to prevent KeyError
+    if prop_name not in pc.PV_PROP_RANGES:
+        raise ValueError(f"Unknown property name: {prop_name}")
+    return v[pc.PV_PROP_RANGES[prop_name][0] : pc.PV_PROP_RANGES[prop_name][1]]
 
 
 def get_property_value(v, prop_name):

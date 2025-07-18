@@ -13,7 +13,7 @@
 """
 Tokenizer for Indian languages. Currently, simple punctuation-based tokenizers
 are supported (see `trivial_tokenize`). Major Indian language punctuations are
-handled. 
+handled.
 """
 import string
 import regex as re
@@ -58,18 +58,23 @@ def trivial_tokenize_indic(text):
     s = re.sub(r"[ ]+", " ", tok_str).strip(" ")
 
     # do not tokenize numbers and dates
-    new_s = ""
+    # new_s = ""
+    parts = []
     prev = 0
     for m in pat_num_seq.finditer(s):
         start = m.start()
         end = m.end()
         if start > prev:
-            new_s = new_s + s[prev:start]
-            new_s = new_s + s[start:end].replace(" ", "")
-            prev = end
+            # new_s = new_s + s[prev:start]
+            parts.append(s[prev:start])
+        # new_s = new_s + s[start:end].replace(" ", "")
+        parts.append(s[start:end].replace(" ", ""))
+        prev = end
 
-    new_s = new_s + s[prev:]
-    s = new_s
+    # new_s = new_s + s[prev:]
+    parts.append(s[prev:])
+    # s = new_s
+    s = "".join(parts)
 
     return s.split(" ")
 
