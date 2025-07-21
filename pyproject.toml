@@ -1,6 +1,6 @@
 [project]
 name = "indic-nlp-library-itt"
-version = "0.1.0"
+version = "0.1.1"
 description = "The goal of the Indic NLP Library is to build Python based libraries for common  text processing and Natural Language Processing in Indian languages. This fork is specialized for IndicTrans2."
 authors = [
     {name = "varun230999@gmail.com"}
@@ -8,13 +8,13 @@ authors = [
 repository = "https://github.com/VarunGumma/indic_nlp_library"
 license = {text = "MIT"}
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.10"
 dependencies = [
-    "numpy (>=2.2.5,<3.0.0)",
-    "pandas (>=2.2.3,<3.0.0)",
-    "morfessor (>=2.0.6,<3.0.0)",
-    "sphinx-rtd-theme (>=3.0.2,<4.0.0)",
-    "sphinx-argparse (>=0.5.2,<0.6.0)"
+    "numpy",
+    "pandas",
+    "morfessor",
+    "sphinx-rtd-theme",
+    "sphinx-argparse"
 ]
 classifiers = [
     "Programming Language :: Python :: 3",

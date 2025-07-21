@@ -11,84 +11,20 @@ import pandas as pd
 import numpy as np
 
 from indicnlp import common
+from indicnlp.script import phonetic_constants as pc
 
-
-#### Maps from ARPABET to Internal Id
+# Maps from ARPABET to Internal Id
 ARPABET_ID_MAP = {}
 ID_ARPABET_MAP = {}
 
 
-###
 # Phonetic Information about script characters
-###
-
-""" Phonetic data for English """
 ENGLISH_PHONETIC_DATA = None
 
-""" Phonetic vector for English"""
 ENGLISH_PHONETIC_VECTORS = None
 
-""" Length of phonetic vector """
-PHONETIC_VECTOR_LENGTH = 38
-
-""" Start offset for the phonetic feature vector in the phonetic data vector """
-PHONETIC_VECTOR_START_OFFSET = 6
-
-## PHONETIC PROPERTIES in order in which they occur in the vector
-## This list must be in sync with the keys in the PV_PROP_RANGES dictionary
-PV_PROP = [
-    "basic_type",
-    "vowel_length",
-    "vowel_strength",
-    "vowel_status",
-    "consonant_type",
-    "articulation_place",
-    "aspiration",
-    "voicing",
-    "nasalization",
-    "vowel_horizontal",
-    "vowel_vertical",
-    "vowel_roundness",
-]
-
-###
-# Bit vector ranges for various properties
-###
-
-PV_PROP_RANGES = {
-    "basic_type": [0, 6],
-    "vowel_length": [6, 8],
-    "vowel_strength": [8, 11],
-    "vowel_status": [11, 13],
-    "consonant_type": [13, 18],
-    "articulation_place": [18, 23],
-    "aspiration": [23, 25],
-    "voicing": [25, 27],
-    "nasalization": [27, 29],
-    "vowel_horizontal": [29, 32],
-    "vowel_vertical": [32, 36],
-    "vowel_roundness": [36, 38],
-}
-
-
-####
-# Indexes into the Phonetic Vector
-####
-PVIDX_BT_VOWEL = 0
-PVIDX_BT_CONSONANT = 1
-PVIDX_BT_NUKTA = 2
-PVIDX_BT_HALANT = 3
-PVIDX_BT_ANUSVAAR = 4
-PVIDX_BT_MISC = 5
-PVIDX_BT_S = PVIDX_BT_VOWEL
-PVIDX_BT_E = PVIDX_BT_MISC + 1
-
-PVIDX_VSTAT_DEP = 12
-
-####
-SCRIPT_RANGE_START = 0x0D00
-## TBD
-SCRIPT_RANGE_END = 0x0D2E
+# Use phonetic vector length from constants, allow override during init
+PHONETIC_VECTOR_LENGTH = pc.DEFAULT_PHONETIC_VECTOR_LENGTH
 
 
 def init():
@@ -96,7 +32,7 @@ def init():
     To be called by library loader, do not call it in your program
     """
 
-    global ENGLISH_PHONETIC_DATA, ENGLISH_PHONETIC_VECTORS, PHONETIC_VECTOR_LENGTH, PHONETIC_VECTOR_START_OFFSET
+    global ENGLISH_PHONETIC_DATA, ENGLISH_PHONETIC_VECTORS, PHONETIC_VECTOR_LENGTH
 
     ENGLISH_PHONETIC_DATA = pd.read_csv(
         os.path.join(
@@ -106,10 +42,15 @@ def init():
     )
 
     ENGLISH_PHONETIC_VECTORS = ENGLISH_PHONETIC_DATA.iloc[
-        :, PHONETIC_VECTOR_START_OFFSET:
+        :, pc.PHONETIC_VECTOR_START_OFFSET :
     ].values
 
-    PHONETIC_VECTOR_LENGTH = ENGLISH_PHONETIC_VECTORS.shape[1]
+    # Update the phonetic vector length based on the loaded data
+    if ENGLISH_PHONETIC_VECTORS is not None:
+        PHONETIC_VECTOR_LENGTH = ENGLISH_PHONETIC_VECTORS.shape[1]
+    else:
+        # Fallback or error handling if vectors are not loaded
+        PHONETIC_VECTOR_LENGTH = pc.DEFAULT_PHONETIC_VECTOR_LENGTH
 
     ### Load mapping from ARPABET representation of phoneme to internal ID
     global ARPABET_ID_MAP, ID_ARPABET_MAP
@@ -134,7 +75,7 @@ def offset_to_phoneme(ph_id):
 
 
 def phoneme_to_enc(ph):
-    return chr(SCRIPT_RANGE_START + phoneme_to_offset(ph))
+    return chr(pc.SCRIPT_RANGE_START + phoneme_to_offset(ph))
 
 
 def enc_to_phoneme(ph):
@@ -142,31 +83,33 @@ def enc_to_phoneme(ph):
 
 
 def enc_to_offset(c):
-    return ord(c) - SCRIPT_RANGE_START
+    return ord(c) - pc.SCRIPT_RANGE_START
 
 
 def in_range(offset):
-    return offset >= SCRIPT_RANGE_START and offset < SCRIPT_RANGE_END
+    return offset >= pc.SCRIPT_RANGE_START and offset < pc.SCRIPT_RANGE_END
 
 
-def get_phonetic_info(lang):
+def get_phonetic_info(
+    lang,
+):  # lang parameter is kept for API consistency if called from generic code
     return (ENGLISH_PHONETIC_DATA, ENGLISH_PHONETIC_VECTORS)
 
 
 def invalid_vector():
-    ##  TODO: check if np datatype is correct?
-    return np.array([0] * PHONETIC_VECTOR_LENGTH)
+    return pc.get_invalid_vector(PHONETIC_VECTOR_LENGTH)
 
 
-def get_phonetic_feature_vector(p, lang):
+def get_phonetic_feature_vector(p, lang):  # lang parameter is kept for API consistency
     offset = enc_to_offset(p)
 
     if not in_range(offset):
         return invalid_vector()
 
-    phonetic_data, phonetic_vectors = get_phonetic_info(lang)
+    # Since this is english_script, we directly use its phonetic data
+    # phonetic_data, phonetic_vectors = get_phonetic_info(lang) # Not needed
 
-    if phonetic_data.iloc[offset]["Valid Vector Representation"] == 0:
+    if ENGLISH_PHONETIC_DATA.iloc[offset]["Valid Vector Representation"] == 0:
         return invalid_vector()
 
-    return phonetic_vectors[offset]
+    return ENGLISH_PHONETIC_VECTORS[offset]

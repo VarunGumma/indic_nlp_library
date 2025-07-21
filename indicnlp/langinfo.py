@@ -79,9 +79,9 @@ RETROFLEX_RANGE = [0x1F, 0x23]
 DENTAL_RANGE = [0x24, 0x29]
 LABIAL_RANGE = [0x2A, 0x2E]
 
-# verify
-VOICED_LIST = [0x17, 0x18, 0x1C, 0x1D, 0x21, 0x22, 0x26, 0x27, 0x2C, 0x2D]
-UNVOICED_LIST = [
+# Convert lists to sets for faster lookups
+_VOICED_SET = {0x17, 0x18, 0x1C, 0x1D, 0x21, 0x22, 0x26, 0x27, 0x2C, 0x2D}
+_UNVOICED_SET = {
     0x15,
     0x16,
     0x1A,
@@ -92,12 +92,12 @@ UNVOICED_LIST = [
     0x25,
     0x2A,
     0x2B,
-]  # TODO: add sibilants/sonorants
-ASPIRATED_LIST = [0x16, 0x18, 0x1B, 0x1D, 0x20, 0x22, 0x25, 0x27, 0x2B, 0x2D]
-UNASPIRATED_LIST = [0x15, 0x17, 0x1A, 0x1C, 0x1F, 0x21, 0x24, 0x26, 0x2A, 0x2C]
-NASAL_LIST = [0x19, 0x1E, 0x23, 0x28, 0x29, 0x2D]
-FRICATIVE_LIST = [0x36, 0x37, 0x38]
-APPROXIMANT_LIST = [0x2F, 0x30, 0x31, 0x32, 0x33, 0x34, 0x35]
+}  # TODO: add sibilants/sonorants
+_ASPIRATED_SET = {0x16, 0x18, 0x1B, 0x1D, 0x20, 0x22, 0x25, 0x27, 0x2B, 0x2D}
+_UNASPIRATED_SET = {0x15, 0x17, 0x1A, 0x1C, 0x1F, 0x21, 0x24, 0x26, 0x2A, 0x2C}
+_NASAL_SET = {0x19, 0x1E, 0x23, 0x28, 0x29, 0x2D}
+_FRICATIVE_SET = {0x36, 0x37, 0x38}
+_APPROXIMANT_SET = {0x2F, 0x30, 0x31, 0x32, 0x33, 0x34, 0x35}
 
 # TODO: ha has to be properly categorized
 
@@ -234,7 +234,7 @@ def is_voiced(c, lang):
     Is the character a voiced consonant
     """
     o = get_offset(c, lang)
-    return o in VOICED_LIST
+    return o in _VOICED_SET
 
 
 def is_unvoiced(c, lang):
@@ -242,7 +242,7 @@ def is_unvoiced(c, lang):
     Is the character a unvoiced consonant
     """
     o = get_offset(c, lang)
-    return o in UNVOICED_LIST
+    return o in _UNVOICED_SET
 
 
 def is_aspirated(c, lang):
@@ -250,7 +250,7 @@ def is_aspirated(c, lang):
     Is the character a aspirated consonant
     """
     o = get_offset(c, lang)
-    return o in ASPIRATED_LIST
+    return o in _ASPIRATED_SET
 
 
 def is_unaspirated(c, lang):
@@ -258,7 +258,7 @@ def is_unaspirated(c, lang):
     Is the character a unaspirated consonant
     """
     o = get_offset(c, lang)
-    return o in UNASPIRATED_LIST
+    return o in _UNASPIRATED_SET
 
 
 def is_nasal(c, lang):
@@ -266,7 +266,7 @@ def is_nasal(c, lang):
     Is the character a nasal consonant
     """
     o = get_offset(c, lang)
-    return o in NASAL_LIST
+    return o in _NASAL_SET
 
 
 def is_fricative(c, lang):
@@ -274,7 +274,7 @@ def is_fricative(c, lang):
     Is the character a fricative consonant
     """
     o = get_offset(c, lang)
-    return o in FRICATIVE_LIST
+    return o in _FRICATIVE_SET
 
 
 def is_approximant(c, lang):
@@ -282,7 +282,7 @@ def is_approximant(c, lang):
     Is the character an approximant consonant
     """
     o = get_offset(c, lang)
-    return o in APPROXIMANT_LIST
+    return o in _APPROXIMANT_SET
 
 
 def is_number(c, lang):
@@ -377,49 +377,49 @@ def is_voiced_offset(c_offset):
     """
     Is the offset a voiced consonant
     """
-    return c_offset in VOICED_LIST
+    return c_offset in _VOICED_SET
 
 
 def is_unvoiced_offset(c_offset):
     """
     Is the offset a unvoiced consonant
     """
-    return c_offset in UNVOICED_LIST
+    return c_offset in _UNVOICED_SET
 
 
 def is_aspirated_offset(c_offset):
     """
     Is the offset a aspirated consonant
     """
-    return c_offset in ASPIRATED_LIST
+    return c_offset in _ASPIRATED_SET
 
 
 def is_unaspirated_offset(c_offset):
     """
     Is the offset a unaspirated consonant
     """
-    return c_offset in UNASPIRATED_LIST
+    return c_offset in _UNASPIRATED_SET
 
 
 def is_nasal_offset(c_offset):
     """
     Is the offset a nasal consonant
     """
-    return c_offset in NASAL_LIST
+    return c_offset in _NASAL_SET
 
 
 def is_fricative_offset(c_offset):
     """
     Is the offset a fricative consonant
     """
-    return c_offset in FRICATIVE_LIST
+    return c_offset in _FRICATIVE_SET
 
 
 def is_approximant_offset(c_offset):
     """
     Is the offset an approximant consonant
     """
-    return c_offset in APPROXIMANT_LIST
+    return c_offset in _APPROXIMANT_SET
 
 
 def is_number_offset(c_offset):

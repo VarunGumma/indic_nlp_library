@@ -23,7 +23,24 @@ import pandas as pd
 OFFSET_TO_ITRANS = {}
 ITRANS_TO_OFFSET = defaultdict(list)
 
-DUPLICATE_ITRANS_REPRESENTATIONS = {}
+# Moved from init() to module level
+DUPLICATE_ITRANS_REPRESENTATIONS = {
+    "A": "aa",
+    "I": "ii",
+    "U": "uu",
+    "RRi": "R^i",
+    "RRI": "R^I",
+    "LLi": "L^i",
+    "LLI": "L^I",
+    "L": "ld",
+    "w": "v",
+    "x": "kSh",
+    "gj": "j~n",
+    "dny": "j~n",
+    ".n": ".m",
+    "M": ".m",
+    "OM": "AUM",
+}
 
 
 def init():
@@ -49,7 +66,7 @@ def init():
     )
     itrans_df = pd.read_csv(itrans_map_fname, encoding="utf-8")
 
-    global OFFSET_TO_ITRANS, ITRANS_TO_OFFSET, DUPLICATE_ITRANS_REPRESENTATIONS
+    global OFFSET_TO_ITRANS, ITRANS_TO_OFFSET  # DUPLICATE_ITRANS_REPRESENTATIONS removed from global modification
 
     for r in itrans_df.iterrows():
         itrans = r[1]["itrans"]
@@ -64,23 +81,7 @@ def init():
             ### the append assumes that the maatra always comes after independent vowel in the df
             ITRANS_TO_OFFSET[itrans].append(o)
 
-        DUPLICATE_ITRANS_REPRESENTATIONS = {
-            "A": "aa",
-            "I": "ii",
-            "U": "uu",
-            "RRi": "R^i",
-            "RRI": "R^I",
-            "LLi": "L^i",
-            "LLI": "L^I",
-            "L": "ld",
-            "w": "v",
-            "x": "kSh",
-            "gj": "j~n",
-            "dny": "j~n",
-            ".n": ".m",
-            "M": ".m",
-            "OM": "AUM",
-        }
+        # DUPLICATE_ITRANS_REPRESENTATIONS moved to module level
 
 
 class UnicodeIndicTransliterator(object):
@@ -290,61 +291,3 @@ class ItransTransliterator(object):
         out = out.replace(langinfo.offset_to_char(0x7F, lang), "")
 
         return out
-
-
-if __name__ == "__main__":
-    if len(sys.argv) < 4:
-        print(
-            "Usage: python unicode_transliterate.py <command> <infile> <outfile> <src_language> <tgt_language>"
-        )
-        sys.exit(1)
-
-    if sys.argv[1] == "transliterate":
-        src_language = sys.argv[4]
-        tgt_language = sys.argv[5]
-
-        with open(sys.argv[2], "r", encoding="utf-8") as ifile:
-            with open(sys.argv[3], "w", encoding="utf-8") as ofile:
-                for line in ifile.readlines():
-                    transliterated_line = UnicodeIndicTransliterator.transliterate(
-                        line, src_language, tgt_language
-                    )
-                    ofile.write(transliterated_line)
-
-    elif sys.argv[1] == "romanize":
-        language = sys.argv[4]
-
-        ### temp fix to replace anusvara with corresponding nasal
-        # r1_nasal=re.compile(ur'\u0902([\u0915-\u0918])')
-        # r2_nasal=re.compile(ur'\u0902([\u091a-\u091d])')
-        # r3_nasal=re.compile(ur'\u0902([\u091f-\u0922])')
-        # r4_nasal=re.compile(ur'\u0902([\u0924-\u0927])')
-        # r5_nasal=re.compile(ur'\u0902([\u092a-\u092d])')
-
-        with open(sys.argv[2], "r", encoding="utf-8") as ifile:
-            with open(sys.argv[3], "w", encoding="utf-8") as ofile:
-                for line in ifile.readlines():
-                    ### temp fix to replace anusvara with corresponding nasal
-                    # line=r1_nasal.sub(u'\u0919\u094D\\1',line)
-                    # line=r2_nasal.sub(u'\u091e\u094D\\1',line)
-                    # line=r3_nasal.sub(u'\u0923\u094D\\1',line)
-                    # line=r4_nasal.sub(u'\u0928\u094D\\1',line)
-                    # line=r5_nasal.sub(u'\u092e\u094D\\1',line)
-
-                    transliterated_line = ItransTransliterator.to_itrans(line, language)
-
-                    ## temp fix to replace 'ph' to 'F' to match with Urdu transliteration scheme
-                    transliterated_line = transliterated_line.replace("ph", "f")
-
-                    ofile.write(transliterated_line)
-
-    elif sys.argv[1] == "indicize":
-        language = sys.argv[4]
-
-        with open(sys.argv[2], "r", encoding="utf-8") as ifile:
-            with open(sys.argv[3], "w", encoding="utf-8") as ofile:
-                for line in ifile.readlines():
-                    transliterated_line = ItransTransliterator.from_itrans(
-                        line, language
-                    )
-                    ofile.write(transliterated_line)

@@ -11,7 +11,7 @@
 # @author Anoop Kunchukuttan
 #
 """
-Sentence splitter for Indian languages. Contains a rule-based 
+Sentence splitter for Indian languages. Contains a rule-based
 sentence splitter that can understand common non-breaking phrases
 in many Indian languages.
 """
@@ -39,6 +39,146 @@ CONTAINS_VALID_DOMAIN_CHAR = re.compile(r"^[a-zA-Z0-9_-]$")
 ## pattern to check for presence of multiple consecutive spaces in text
 CONTAINS_MULTIPLE_SPACES = re.compile(" +")
 
+_ACK_CHARS = {
+    ## acronym for latin characters
+    "ए",
+    "ऎ",
+    "बी",
+    "बि",
+    "सी",
+    "सि",
+    "डी",
+    "डि",
+    "ई",
+    "इ",
+    "एफ",
+    "ऎफ",
+    "जी",
+    "जि",
+    "एच",
+    "ऎच",
+    "आई",
+    "आइ",
+    "ऐ",
+    "जे",
+    "जॆ",
+    "के",
+    "कॆ",
+    "एल",
+    "ऎल",
+    "एम",
+    "ऎम",
+    "एन",
+    "ऎन",
+    "ओ",
+    "ऒ",
+    "पी",
+    "पि",
+    "क्यू",
+    "क्यु",
+    "आर",
+    "एस",
+    "ऎस",
+    "टी",
+    "टि",
+    "यू",
+    "यु",
+    "वी",
+    "वि",
+    "व्ही",
+    "व्हि",
+    "डब्ल्यू",
+    "डब्ल्यु",
+    "एक्स",
+    "ऎक्स",
+    "वाय",
+    "जेड",
+    "ज़ेड",
+    ##  add halant to the previous English character mappings.
+    "एफ्",
+    "ऎफ्",
+    "एच्",
+    "ऎच्",
+    "एल्",
+    "ऎल्",
+    "एम्",
+    "ऎम्",
+    "एन्",
+    "ऎन्",
+    "आर्",
+    "एस्",
+    "ऎस्",
+    "एक्स्",
+    "ऎक्स्",
+    "वाय्",
+    "जेड्",
+    "ज़ेड्",
+    # Indic vowels
+    "ऄ",
+    "अ",
+    "आ",
+    "इ",
+    "ई",
+    "उ",
+    "ऊ",
+    "ऋ",
+    "ऌ",
+    "ऍ",
+    "ऎ",
+    "ए",
+    "ऐ",
+    "ऑ",
+    "ऒ",
+    "ओ",
+    "औ",
+    "ॠ",
+    "ॡ",
+    # Indic consonants
+    "क",
+    "ख",
+    "ग",
+    "घ",
+    "ङ",
+    "च",
+    "छ",
+    "ज",
+    "झ",
+    "ञ",
+    "ट",
+    "ठ",
+    "ड",
+    "ढ",
+    "ण",
+    "त",
+    "थ",
+    "द",
+    "ध",
+    "न",
+    "ऩ",
+    "प",
+    "फ",
+    "ब",
+    "भ",
+    "म",
+    "य",
+    "र",
+    "ऱ",
+    "ल",
+    "ळ",
+    "ऴ",
+    "व",
+    "श",
+    "ष",
+    "स",
+    "ह",
+    ## abbreviation
+    "श्री",
+    "डॉ",
+    "कु",
+    "चि",
+    "सौ",
+}
+
 
 def is_latin_or_numeric(character):
     """
@@ -64,149 +204,9 @@ def is_acronym_abbvr(text, lang):
         boolean: true if `text` is a non-breaking phrase
     """
 
-    ack_chars = {
-        ## acronym for latin characters
-        "ए",
-        "ऎ",
-        "बी",
-        "बि",
-        "सी",
-        "सि",
-        "डी",
-        "डि",
-        "ई",
-        "इ",
-        "एफ",
-        "ऎफ",
-        "जी",
-        "जि",
-        "एच",
-        "ऎच",
-        "आई",
-        "आइ",
-        "ऐ",
-        "जे",
-        "जॆ",
-        "के",
-        "कॆ",
-        "एल",
-        "ऎल",
-        "एम",
-        "ऎम",
-        "एन",
-        "ऎन",
-        "ओ",
-        "ऒ",
-        "पी",
-        "पि",
-        "क्यू",
-        "क्यु",
-        "आर",
-        "एस",
-        "ऎस",
-        "टी",
-        "टि",
-        "यू",
-        "यु",
-        "वी",
-        "वि",
-        "व्ही",
-        "व्हि",
-        "डब्ल्यू",
-        "डब्ल्यु",
-        "एक्स",
-        "ऎक्स",
-        "वाय",
-        "जेड",
-        "ज़ेड",
-        ##  add halant to the previous English character mappings.
-        "एफ्",
-        "ऎफ्",
-        "एच्",
-        "ऎच्",
-        "एल्",
-        "ऎल्",
-        "एम्",
-        "ऎम्",
-        "एन्",
-        "ऎन्",
-        "आर्",
-        "एस्",
-        "ऎस्",
-        "एक्स्",
-        "ऎक्स्",
-        "वाय्",
-        "जेड्",
-        "ज़ेड्",
-        # Indic vowels
-        "ऄ",
-        "अ",
-        "आ",
-        "इ",
-        "ई",
-        "उ",
-        "ऊ",
-        "ऋ",
-        "ऌ",
-        "ऍ",
-        "ऎ",
-        "ए",
-        "ऐ",
-        "ऑ",
-        "ऒ",
-        "ओ",
-        "औ",
-        "ॠ",
-        "ॡ",
-        # Indic consonants
-        "क",
-        "ख",
-        "ग",
-        "घ",
-        "ङ",
-        "च",
-        "छ",
-        "ज",
-        "झ",
-        "ञ",
-        "ट",
-        "ठ",
-        "ड",
-        "ढ",
-        "ण",
-        "त",
-        "थ",
-        "द",
-        "ध",
-        "न",
-        "ऩ",
-        "प",
-        "फ",
-        "ब",
-        "भ",
-        "म",
-        "य",
-        "र",
-        "ऱ",
-        "ल",
-        "ळ",
-        "ऴ",
-        "व",
-        "श",
-        "ष",
-        "स",
-        "ह",
-        ## abbreviation
-        "श्री",
-        "डॉ",
-        "कु",
-        "चि",
-        "सौ",
-    }
-
     return (
         unicode_transliterate.UnicodeIndicTransliterator.transliterate(text, lang, "hi")
-        in ack_chars
+        in _ACK_CHARS
     )
 
 
@@ -300,37 +300,43 @@ def sentence_split(text, lang, delim_pat="auto"):  ## New signature
     ### Method: If there is a run of lines containing only a word (optionally) and '.',
     ### merge these lines as well one sentence preceding and succeeding this run of lines.
     final_sentences = []
-    sen_buffer = ""
+    sen_buffer_list = []  # Changed from string to list
     bad_state = False
 
     for i, sentence in enumerate(cand_sentences):
         words = sentence.split(" ")
-        # if len(words)<=2 and words[-1]=='.':
+        # if len(words)<=2 and words[-1]==\'.\':
         if len(words) == 1 and sentence[-1] == ".":
             bad_state = True
-            sen_buffer = sen_buffer + " " + sentence
+            if sen_buffer_list:  # Add space only if buffer is not empty
+                sen_buffer_list.append(" ")
+            sen_buffer_list.append(sentence)
         ## NEW condition
         elif sentence[-1] == "." and is_acronym_abbvr(words[-1][:-1], lang):
-            if len(sen_buffer) > 0 and not bad_state:
-                final_sentences.append(sen_buffer)
-                sen_buffer = sentence
+            if sen_buffer_list and not bad_state:  # Finalize previous buffer if any
+                final_sentences.append("".join(sen_buffer_list))
+                sen_buffer_list = [sentence]  # Start new buffer
             else:
-                sen_buffer = sen_buffer + " " + sentence
+                if sen_buffer_list:  # Add space only if buffer is not empty
+                    sen_buffer_list.append(" ")
+                sen_buffer_list.append(sentence)
             bad_state = True
         elif bad_state:
-            sen_buffer = sen_buffer + " " + sentence
-            if len(sen_buffer) > 0:
-                final_sentences.append(sen_buffer)
-            sen_buffer = ""
+            if sen_buffer_list:  # Add space only if buffer is not empty
+                sen_buffer_list.append(" ")
+            sen_buffer_list.append(sentence)
+            if sen_buffer_list:  # Finalize current buffer
+                final_sentences.append("".join(sen_buffer_list))
+            sen_buffer_list = []
             bad_state = False
         else:  ## good state
-            if len(sen_buffer) > 0:
-                final_sentences.append(sen_buffer)
-            sen_buffer = sentence
+            if sen_buffer_list:  # Finalize previous buffer if any
+                final_sentences.append("".join(sen_buffer_list))
+            sen_buffer_list = [sentence]  # Start new buffer with current sentence
             bad_state = False
 
-    if len(sen_buffer) > 0:
-        final_sentences.append(sen_buffer)
+    if sen_buffer_list:  # Append any remaining buffer content
+        final_sentences.append("".join(sen_buffer_list))
 
     for i in range(0, len(final_sentences)):
         final_sentences[i] = CONTAINS_MULTIPLE_SPACES.sub(

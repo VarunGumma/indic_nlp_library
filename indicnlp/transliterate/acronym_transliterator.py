@@ -50,34 +50,7 @@ class LatinToIndicAcronymTransliterator(object):
 
     # a_unichr=ord('a')
     # alphabet = [ chr(a_unichr+n) for n in range(26) ]
-    LATIN_ALPHABET = [
-        "a",
-        "b",
-        "c",
-        "d",
-        "e",
-        "f",
-        "g",
-        "h",
-        "i",
-        "j",
-        "k",
-        "l",
-        "m",
-        "n",
-        "o",
-        "p",
-        "q",
-        "r",
-        "s",
-        "t",
-        "u",
-        "v",
-        "w",
-        "x",
-        "y",
-        "z",
-    ]
+    LATIN_ALPHABET = "abcdefghijklmnopqrstuvwxyz"
 
     @staticmethod
     def get_transtable():

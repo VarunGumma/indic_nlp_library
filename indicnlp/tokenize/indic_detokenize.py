@@ -56,18 +56,18 @@ def trivial_detokenize_indic(text):
     ### some normalizations
 
     # numbers and dates
-    new_s = ""
+    s_parts = []
     prev = 0
     for m in pat_num_seq.finditer(s):
         start = m.start()
         end = m.end()
         if start > prev:
-            new_s = new_s + s[prev:start]
-            new_s = new_s + s[start:end].replace(" ", "")
+            s_parts.append(s[prev:start])
+            s_parts.append(s[start:end].replace(" ", ""))
             prev = end
 
-    new_s = new_s + s[prev:]
-    s = new_s
+    s_parts.append(s[prev:])
+    s = "".join(s_parts)
 
     ###  consective single quotes or backslashes become double quotes
     # s=s.replace("' '", "''")

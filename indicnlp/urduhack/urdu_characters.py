@@ -27,7 +27,7 @@ URDU_PUNCTUATIONS: FrozenSet[str] = frozenset("؛ ، ٫  ؟ ۔ ٪".split())
 
 # Urdu Aerabs
 URDU_DIACRITICS: FrozenSet[str] = frozenset(
-    "\u064e \u064B \u0670 \u0650 \u064F \u064d".split()
+    "\u064e \u064b \u0670 \u0650 \u064f \u064d".split()
 )
 
 # Urdu Extra Characters
